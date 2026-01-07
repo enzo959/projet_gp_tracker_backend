@@ -1,0 +1,4 @@
+# PostgreSQL
+groupie_db/
+*.log
+*.tmp
