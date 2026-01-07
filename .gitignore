@@ -1,4 +1,25 @@
-# PostgreSQL
-groupie_db/
+# Binaries Go
+/bin/
+/build/
+*.exe
+*.out
+
+# Go build cache
+*.test
+
+# Environment variables
+.env
+
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
+
+# Logs
 *.log
+
+# Docker
+docker-compose.override.yml
+
+# Migrations temp
 *.tmp
