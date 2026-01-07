@@ -8,6 +8,8 @@ import (
 	//chi
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+
+	"github.com/enzo959/projet-gp-tracker-backend/internal/database"
 )
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -18,6 +20,11 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// connexion postgreSQL
+	if err := database.Connect(); err != nil {
+		log.Fatal("DB connection failed:", err)
+	}
+
 	r := chi.NewRouter()
 
 	// middlewares de base
