@@ -17,10 +17,10 @@ func main() {
 	if err := database.Connect(); err != nil {
 		log.Fatal("DB connection failed:", err)
 	}
-
+	// routing
 	r := chi.NewRouter()
 
-	// middlewares de base
+	// middlewares de base fournit par chi
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 

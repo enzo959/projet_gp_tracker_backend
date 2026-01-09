@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/enzo959/projet-gp-tracker-backend/internal/database"
+	"github.com/go-chi/chi/v5"
 )
 
 type Concert struct {
@@ -18,19 +19,15 @@ type Concert struct {
 	TotalTickets int       `json:"total_tickets"`
 }
 
-func GetConcerts(w http.ResponseWriter, r *http.Request) {
-	rows, err := database.DB.Query(
-		context.Background(), `
-		SELECT id, artist_id, date, location, price_cents, total_tickets
-		FROM concerts
-	`)
+func fetchConcerts(query string, args ...any) ([]Concert, error) {
+	rows, err := database.DB.Query(context.Background(), query, args...)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 	defer rows.Close()
 
 	concerts := []Concert{}
+
 	for rows.Next() {
 		var c Concert
 		if err := rows.Scan(
@@ -41,12 +38,39 @@ func GetConcerts(w http.ResponseWriter, r *http.Request) {
 			&c.PriceCents,
 			&c.TotalTickets,
 		); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			return nil, err
 		}
 		concerts = append(concerts, c)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	return concerts, nil
+}
+
+func GetConcerts(w http.ResponseWriter, r *http.Request) {
+	concerts, err := fetchConcerts(`
+		SELECT id, artist_id, date, location, price_cents, total_tickets
+		FROM concerts
+	`)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(concerts)
+}
+
+func GetConcertsByArtist(w http.ResponseWriter, r *http.Request) {
+	artistID := chi.URLParam(r, "id")
+
+	concerts, err := fetchConcerts(`
+		SELECT id, artist_id, date, location, price_cents, total_tickets
+		FROM concerts
+		WHERE artist_id = $1
+	`, artistID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	json.NewEncoder(w).Encode(concerts)
 }
