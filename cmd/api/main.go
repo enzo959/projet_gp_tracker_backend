@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/joho/godotenv"
+
 	//chi
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -13,6 +15,11 @@ import (
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	// connexion postgreSQL
 	if err := database.Connect(); err != nil {
 		log.Fatal("DB connection failed:", err)
@@ -30,6 +37,7 @@ func main() {
 	r.Get("/artists/{id}", handlers.GetArtistByID)
 	r.Get("/artists/{id}/concerts", handlers.GetConcertsByArtist)
 	r.Post("/auth/register", handlers.Register)
+	r.Post("/auth/login", handlers.Login)
 
 	log.Println("Le serveur se lance sur :8080")
 	log.Fatal(http.ListenAndServe(":8080", r))

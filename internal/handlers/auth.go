@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/enzo959/projet-gp-tracker-backend/internal/database"
@@ -18,6 +21,15 @@ type RegisterRequest struct {
 type RegisterResponse struct {
 	ID    int    `json:"id"`
 	Email string `json:"email"`
+}
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -65,4 +77,55 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(resp)
+}
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	var req LoginRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if req.Email == "" || req.Password == "" {
+		http.Error(w, "email and password requi", http.StatusBadRequest)
+		return
+	}
+
+	var id int
+	var hash string
+	err := database.DB.QueryRow(
+		context.Background(),
+		`SELECT id, password_hash FROM users WHERE email=$1`,
+		req.Email,
+	).Scan(&id, &hash)
+
+	if err != nil {
+		http.Error(w, "user invalide", http.StatusUnauthorized)
+		return
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(req.Password)); err != nil {
+		http.Error(w, "imdp invalide", http.StatusUnauthorized)
+		return
+	}
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		http.Error(w, "JWT pas secret", http.StatusInternalServerError)
+		return
+	}
+
+	claims := jwt.MapClaims{
+		"user_id": id,
+		"exp":     time.Now().Add(2 * time.Hour).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		http.Error(w, "vous ne pouvez pas créer de token", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(LoginResponse{Token: tokenString})
 }
