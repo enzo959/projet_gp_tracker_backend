@@ -1,4 +1,4 @@
-module github.com/enzo959/projet-gp-tracker-backend
+module github.com/enzo959/projet_gp_tracker_backend
 
 go 1.25.5
 

@@ -3,12 +3,25 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/enzo959/projet-gp-tracker-backend/internal/database"
+	"github.com/enzo959/projet_gp_tracker_backend/internal/database"
 	"github.com/go-chi/chi/v5"
 )
+
+func CreateConcert(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(">>> CreateConcert handler called")
+}
+
+type CreateConcertInput struct {
+	ArtistID     int       `json:"artist_id"`
+	Date         time.Time `json:"date"`
+	Location     string    `json:"location"`
+	PriceCents   int       `json:"price_cents"`
+	TotalTickets int       `json:"total_tickets"`
+}
 
 type Concert struct {
 	ID           int       `json:"id"`
@@ -112,3 +125,39 @@ func GetArtistByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(artist)
 }
+
+// func CreateConcert(w http.ResponseWriter, r *http.Request) {
+// 	var input CreateConcertInput
+
+// 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+// 		http.Error(w, "invalid JSON body", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	if input.ArtistID == 0 || input.Location == "" || input.TotalTickets <= 0 {
+// 		http.Error(w, "missing or invalid fields", http.StatusBadRequest)
+// 		return
+// 	}
+// 	_, err := database.DB.Exec(
+// 		context.Background(),
+// 		`
+// 		INSERT INTO concerts (artist_id, date, location, price_cents, total_tickets)
+// 		VALUES ($10, $20, $30, $40, $50)
+// 		`,
+// 		input.ArtistID,
+// 		input.Date,
+// 		input.Location,
+// 		input.PriceCents,
+// 		input.TotalTickets,
+// 	)
+
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	w.WriteHeader(http.StatusCreated)
+// 	json.NewEncoder(w).Encode(map[string]string{
+// 		"message": "concert crée avec succès.",
+// 	})
+// }

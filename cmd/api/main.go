@@ -4,15 +4,15 @@ import (
 	"log"
 	"net/http"
 
-	myMiddleware "github.com/enzo959/projet-gp-tracker-backend/internal/middleware"
+	myMiddleware "github.com/enzo959/projet_gp_tracker_backend/internal/middleware"
 	"github.com/joho/godotenv"
 
 	//chi
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 
-	"github.com/enzo959/projet-gp-tracker-backend/internal/database"
-	"github.com/enzo959/projet-gp-tracker-backend/internal/handlers"
+	"github.com/enzo959/projet_gp_tracker_backend/internal/database"
+	"github.com/enzo959/projet_gp_tracker_backend/internal/handlers"
 )
 
 func main() {
@@ -42,6 +42,11 @@ func main() {
 		r.Get("/", handlers.GetArtists)
 		r.Get("/{id}", handlers.GetArtistByID)
 		r.Get("/{id}/concerts", handlers.GetConcertsByArtist)
+	})
+	// routes protégées
+	r.Group(func(r chi.Router) {
+		r.Use(myMiddleware.JWT)
+		r.Post("/concerts", handlers.CreateConcert)
 	})
 
 	r.Route("/concerts", func(r chi.Router) {
