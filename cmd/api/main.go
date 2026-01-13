@@ -31,6 +31,7 @@ func main() {
 	// Middleware général de chi
 	r.Use(chiMiddleware.Logger)
 	r.Use(chiMiddleware.Recoverer)
+	r.Use(myMiddleware.CORS())
 
 	// Route publique
 	r.Post("/auth/register", handlers.Register)
