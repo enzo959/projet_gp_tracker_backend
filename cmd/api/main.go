@@ -47,6 +47,7 @@ func main() {
 	// routes protégées
 	r.Group(func(r chi.Router) {
 		r.Use(myMiddleware.JWT)
+		r.Use(myMiddleware.AdminOnly)
 
 		r.Post("/concerts", handlers.CreateConcert)
 		r.Get("/concerts", handlers.GetConcerts)

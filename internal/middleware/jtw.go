@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"strings"
@@ -33,6 +34,17 @@ func JWT(next http.Handler) http.Handler {
 			http.Error(w, "invalid token", http.StatusUnauthorized)
 			return
 		}
+
+		// Récupérer les claims
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			http.Error(w, "invalid token claims", http.StatusUnauthorized)
+			return
+		}
+
+		// Ajouter user_id et role dans le contexte
+		ctx := context.WithValue(r.Context(), "user_id", int(claims["user_id"].(float64)))
+		ctx = context.WithValue(ctx, "role", claims["role"].(string))
 
 		// Passe au handler suivant
 		next.ServeHTTP(w, r)

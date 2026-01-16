@@ -1,0 +1,2 @@
+ALTER TABLE users
+ADD COLUMN role_user TEXT NOT NULL DEFAULT 'user';

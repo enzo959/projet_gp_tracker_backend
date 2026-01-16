@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -122,6 +123,11 @@ func GetArtistByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateConcert(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("user_id").(int)
+	role := r.Context().Value("role").(string)
+
+	fmt.Println("User ID:", userID, "Role:", role)
+
 	var input CreateConcertInput
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
