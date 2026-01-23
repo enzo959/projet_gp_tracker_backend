@@ -56,8 +56,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	var userID int
 	err = database.DB.QueryRow(
 		context.Background(),
-		`INSERT INTO users (email, password_hash)
-		 VALUES ($1, $2)
+		`INSERT INTO users (email, password_hash, role)
+		 VALUES ($1, $2, 'user')
 		 RETURNING id`,
 		req.Email,
 		string(hash),
@@ -95,7 +95,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	var hash, role string
 	err := database.DB.QueryRow(
 		context.Background(),
-		`SELECT id, password_hash FROM users WHERE email=$1`,
+		`SELECT id, password_hash, role FROM users WHERE email=$1`,
 		req.Email,
 	).Scan(&id, &hash, &role)
 
