@@ -37,34 +37,33 @@ func main() {
 	r.Post("/auth/register", handlers.Register)
 	r.Post("/auth/login", handlers.Login)
 
-	// Routes sécurisées
-	r.Route("/artists", func(r chi.Router) {
-		r.Use(myMiddleware.JWT)
-
-		r.Get("/", handlers.GetArtists)
-		r.Get("/{id}", handlers.GetArtistByID)
-		r.Get("/{id}/concerts", handlers.GetConcertsByArtist)
-	})
+	// routes protégées
 	r.Route("/concerts", func(r chi.Router) {
 		r.Use(myMiddleware.JWT)
 
+		// méthode user
 		r.Get("/", handlers.GetConcerts)
 
-	})
-	// routes protégées
-	r.Group(func(r chi.Router) {
-		r.Use(myMiddleware.JWT)
-		r.Use(myMiddleware.AdminOnly)
-
-		// Concerts admin
-		r.Route("/concerts", func(r chi.Router) {
+		// méthodes admin
+		r.Group(func(r chi.Router) {
+			r.Use(myMiddleware.AdminOnly)
 			r.Post("/", handlers.CreateConcert)
 			r.Put("/{id}", handlers.UpdateConcert)
 			r.Delete("/{id}", handlers.DeleteConcert)
 		})
+	})
 
-		// Artistes admin
-		r.Route("/artists", func(r chi.Router) {
+	r.Route("/artists", func(r chi.Router) {
+		r.Use(myMiddleware.JWT)
+
+		// méthodes user
+		r.Get("/", handlers.GetArtists)
+		r.Get("/{id}", handlers.GetArtistByID)
+		r.Get("/{id}/concerts", handlers.GetConcertsByArtist)
+
+		// méthodes admin
+		r.Group(func(r chi.Router) {
+			r.Use(myMiddleware.AdminOnly)
 			r.Post("/", handlers.CreateArtist)
 			r.Put("/{id}", handlers.UpdateArtist)
 			r.Delete("/{id}", handlers.DeleteArtist)

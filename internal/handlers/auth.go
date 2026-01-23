@@ -92,12 +92,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var id int
-	var hash string
+	var hash, role string
 	err := database.DB.QueryRow(
 		context.Background(),
 		`SELECT id, password_hash FROM users WHERE email=$1`,
 		req.Email,
-	).Scan(&id, &hash)
+	).Scan(&id, &hash, &role)
 
 	if err != nil {
 		http.Error(w, "user invalide", http.StatusUnauthorized)
@@ -115,6 +115,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	claims := jwt.MapClaims{
 		"user_id": id,
+		"role":    role,
 		"exp":     time.Now().Add(2 * time.Hour).Unix(),
 	}
 
