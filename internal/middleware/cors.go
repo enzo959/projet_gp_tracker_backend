@@ -9,7 +9,7 @@ import (
 // CORS configure un middleware CORS pour le backend
 func CORS() func(next http.Handler) http.Handler {
 	return cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"}, // ton front local
+		AllowedOrigins:   []string{"http://localhost:3000"}, // ton front local 5171 hein allan ;)
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Authorization"},
